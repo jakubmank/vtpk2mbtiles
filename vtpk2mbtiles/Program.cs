@@ -122,29 +122,7 @@ namespace vtpk2mbtiles {
 
 			dynamic style = JObject.Parse(File.ReadAllText(styleJson, Encoding.UTF8));
 			IEnumerable<dynamic> styleLayers = style.layers;
-			IEnumerable<dynamic> vLayersSrc = styleLayers
-				.GroupBy(sl => ((JObject)sl)["source-layer"].ToString())
-				.Select(g => new {
-					id = g.Key,
-					fields = new { },
-					minzoom = 2,
-					maxzoom = 16
-				})
-				.ToList();
-			dynamic vectorLayers = new {
-				vector_layers = vLayersSrc
-			};
 
-			dynamic rootJson = JObject.Parse(File.ReadAllText(rootRootJson, Encoding.UTF8));
-			MetaData md = new MetaData {
-				// don't use rootJson.maxzoom! it's set to 23 for basemap.at
-				Name = rootJson.name,
-				FullExtXMin = rootJson.fullExtent.xmin,
-				FullExtYMin = rootJson.fullExtent.ymin,
-				FullExtXMax = rootJson.fullExtent.xmax,
-				FullExtYMax = rootJson.fullExtent.ymax,
-				VectorLayers = JsonConvert.SerializeObject(vectorLayers)
-			};
 
 			IOutput outputWriter;
 			Console.WriteLine($"folder destination: [{destination}]");
@@ -169,7 +147,7 @@ namespace vtpk2mbtiles {
 				int z = Convert.ToInt32(zTxt);
 
 				// HACK: till parsing z0 from tileinfo works
-				if (0 == z) { continue; } // TODO do not omit level 0
+				if (0 == z) { continue; } // TODO why???
 
 				bundleFiles.UnionWith(Directory.GetFiles(levelDir, "*.bundle").OrderBy(b => b).ToArray());
 			}
@@ -247,16 +225,8 @@ namespace vtpk2mbtiles {
 		private static void traverseLevels(IEnumerable<dynamic> index, int zoomLevel, long parentRow, long parentCol) {
 
 			zoomLevel++;
-			//Console.WriteLine($"zoomLevel: {zoomLevel}");
 
 			List<dynamic> children = index.ToList();
-
-			//if (5 == zoomLevel) {
-			//	Console.WriteLine($"child[0]: {(children[0] is JArray ? "1" : "0")}");
-			//	Console.WriteLine($"child[1]: {(children[1] is JArray ? "1" : "0")}");
-			//	Console.WriteLine($"child[2]: {(children[2] is JArray ? "1" : "0")}");
-			//	Console.WriteLine($"child[3]: {(children[3] is JArray ? "1" : "0")}");
-			//}
 
 			long col = parentCol * 2;
 			long row = parentRow * 2;

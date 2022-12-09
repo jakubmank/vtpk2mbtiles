@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace vtpk2mbtiles {
 	public class TileId {
 		public int z { get; set; }
