@@ -74,22 +74,22 @@ namespace vtpk2mbtiles {
 		public HashSet<TileId> FailedTiles { private set; get; } = new HashSet<TileId>();
 		public long ProcessedTiles { private set; get; } = 0;
 
+		//TODO: Remove it is not used anywhere
+		//public bool ReadTileIndex() {
+		//	try {
+		//		_bundleReader.BaseStream.Seek(64, 0);
 
-		public bool ReadTileIndex() {
-			try {
-				_bundleReader.BaseStream.Seek(64, 0);
+		//		for (int i = 0; i < 128 * 128; i++) {
+		//			byte[] tileIndex = _bundleReader.ReadBytes(8);
+		//		}
 
-				for (int i = 0; i < 128 * 128; i++) {
-					byte[] tileIndex = _bundleReader.ReadBytes(8);
-				}
-
-				return true;
-			}
-			catch (Exception ex) {
-				Console.WriteLine($"error reading tile index: {ex}");
-				return false;
-			}
-		}
+		//		return true;
+		//	}
+		//	catch (Exception ex) {
+		//		Console.WriteLine($"error reading tile index: {ex}");
+		//		return false;
+		//	}
+		//}
 
 		public bool GetTiles(List<TileId> tileIds, CancelObject cancel) {
 			try {
