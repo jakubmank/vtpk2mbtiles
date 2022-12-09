@@ -166,12 +166,18 @@ namespace vtpk2mbtiles {
 		
 		private long GetTileOffset(long tileIndexValue)
         {
-            return tileIndexValue & (1L << 40) - 1L; //TODO: Explain this magic number
+			/*
+			 * Extract the tile offset from tileIndexValue by shifting and masking the value. The tile offset is represented by the lower 40 bits of the value.
+			 */
+			return tileIndexValue & (1L << 40) - 1L;
         }
 		
 		private long GetTileSize(long tileIndexValue)
 		{
-			return (tileIndexValue >> 40) & ((1 << 20) - 1);//TODO: Explain this magic number
+			/*
+        	 * Extract the tile size from the tileIndexValue by shifting and masking the value. The tile size is represented by the next 20 bits after the lower 40 bits have been discarded.
+			*/
+			return (tileIndexValue >> 40) & ((1 << 20) - 1);
 		}
 
         private long GetTileIndexOffset((long row, long col) relativePosition)
