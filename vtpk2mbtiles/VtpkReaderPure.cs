@@ -17,13 +17,11 @@ namespace vtpk2mbtiles {
 		private BinaryReader _bundleReader;
 		private long _bundleRow;
 		private long _bundleCol;
-		private bool _unzip;
 		private IOutput _outputWriter;
 
 
-		public VtpkReaderPure(string bundleFileName, bool unzip, IOutput outputWriter) {
+		public VtpkReaderPure(string bundleFileName, IOutput outputWriter) {
 
-			_unzip = unzip;
 			_outputWriter = outputWriter;
 
 			string bundleName = Path.GetFileNameWithoutExtension(bundleFileName);
@@ -109,19 +107,16 @@ namespace vtpk2mbtiles {
 						FailedTiles.Add(tid);
 						continue;
 					}
-
-					if (_unzip)
+					// decompress tile
+					byte[] decompressed = Compression.Decompress(oneTile);
+					if (null == decompressed || oneTile.Length == decompressed.Length)
 					{
-						byte[] decompressed = Compression.Decompress(oneTile);
-						if (null == decompressed || oneTile.Length == decompressed.Length)
-						{
-							Console.WriteLine($"error: {tid} could not be decompressd. offset:{tileInfo.offset} size:{tileInfo.size}");
-							FailedTiles.Add(tid);
-							continue;
-						}
-						oneTile = decompressed;
+						Console.WriteLine($"error: {tid} could not be decompressd. offset:{tileInfo.offset} size:{tileInfo.size}");
+						FailedTiles.Add(tid);
+						continue;
 					}
-
+					oneTile = decompressed;
+					
 					if (!_outputWriter.Write(tid, oneTile))
 					{
 						FailedTiles.Add(tid);

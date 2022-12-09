@@ -49,26 +49,13 @@ namespace vtpk2mbtiles {
 				Console.WriteLine();
 				Console.WriteLine("         vtpk-directory output-directory <unzip>");
 				Console.WriteLine();
-				Console.WriteLine("<unzip> can be any of [true,t,1,false,f,0]");
 				Console.WriteLine();
 				return 1;
 			}
 
 			string vtpkDir = args[0];
 			string destination = args[1];
-			string unzipParam = args[2].ToLower();
-			bool unzip = false;
-			string[] allTrue = new string[] { "true", "t", "1" };
-			string[] allFalse = new string[] { "false", "f", "0" };
-			if (allTrue.Contains(unzipParam)) {
-				Console.WriteLine("decompressing tiles");
-				unzip = true;
-			} else if (allFalse.Contains(unzipParam)) {
-				Console.WriteLine("not decompressing tiles");
-			} else {
-				Console.WriteLine("invalid parameter for 'unzip'");
-				Console.WriteLine("using default: not decompressing tiles");
-			}
+			Console.WriteLine("decompressing tiles");
 
 
 
@@ -160,14 +147,8 @@ namespace vtpk2mbtiles {
 			};
 
 			IOutput outputWriter;
-			if (destination.ToLower().EndsWith(".mbtiles")) {
-				Console.WriteLine($"mbtiles destination: [{destination}]");
-				outputWriter = new OutputMbtiles(destination, md);
-			} else {
-				Console.WriteLine($"folder destination: [{destination}]");
-				outputWriter = new OutputFiles(destination);
-			}
-
+			Console.WriteLine($"folder destination: [{destination}]");
+			outputWriter = new OutputFiles(destination);
 
 
 			DateTime dtStart = DateTime.Now;
@@ -188,19 +169,7 @@ namespace vtpk2mbtiles {
 				int z = Convert.ToInt32(zTxt);
 
 				// HACK: till parsing z0 from tileinfo works
-				if (0 == z) { continue; }
-
-				// for testing, process only certain levels
-				//if (
-				//	// 5 != z
-				//	//&& 6 != z
-				//	//&& 7 != z
-				//	//&& 8 != z
-				//	//&& 9 != z
-				//	//&& 10 != z
-				//	//11 != z
-				//	12 != z
-				//) { continue; }
+				if (0 == z) { continue; } // TODO do not omit level 0
 
 				bundleFiles.UnionWith(Directory.GetFiles(levelDir, "*.bundle").OrderBy(b => b).ToArray());
 			}
@@ -221,7 +190,7 @@ namespace vtpk2mbtiles {
 						string zTxt = Path.GetFileName(Path.GetDirectoryName(bundleFile)).Substring(1, 2);
 						int z = Convert.ToInt32(zTxt);
 
-						using (VtpkReader vtpkReader = new VtpkReader(bundleFile, unzip, outputWriter)) {
+						using (VtpkReader vtpkReader = new VtpkReader(bundleFile, outputWriter)) {
 
 							if (!vtpkReader.GetTiles(
 								_tileIds.Where(
