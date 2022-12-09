@@ -44,7 +44,7 @@ namespace vtpk2mbtiles {
 
 			};
 
-			if (args.Length != 3) {
+			if (args.Length != 2) {
 				Console.WriteLine("wrong number of arguments, use:");
 				Console.WriteLine();
 				Console.WriteLine("         vtpk-directory output-directory <unzip>");
