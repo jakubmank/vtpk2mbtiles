@@ -146,8 +146,6 @@ namespace vtpk2mbtiles {
 				string zTxt = Path.GetFileName(levelDir).Substring(1, 2);
 				int z = Convert.ToInt32(zTxt);
 
-				// HACK: till parsing z0 from tileinfo works
-				if (0 == z) { continue; } // TODO why???
 
 				bundleFiles.UnionWith(Directory.GetFiles(levelDir, "*.bundle").OrderBy(b => b).ToArray());
 			}
@@ -221,7 +219,7 @@ namespace vtpk2mbtiles {
 		}
 
 
-
+		//TODO Fix not working LVL 0
 		private static void traverseLevels(IEnumerable<dynamic> index, int zoomLevel, long parentRow, long parentCol) {
 
 			zoomLevel++;
@@ -257,9 +255,6 @@ namespace vtpk2mbtiles {
 			if (children[1] is JArray) { traverseLevels(children[1], zoomLevel, row, col + 1); }
 			if (children[2] is JArray) { traverseLevels(children[2], zoomLevel, row + 1, col); }
 			if (children[3] is JArray) { traverseLevels(children[3], zoomLevel, row + 1, col + 1); }
-
-
-
 		}
 
 
