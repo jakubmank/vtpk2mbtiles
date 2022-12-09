@@ -176,8 +176,9 @@ namespace vtpk2mbtiles {
 
         private long GetTileIndexOffset((long row, long col) relativePosition)
         {
-            long tileIndexOffset = HEADER_SIZE + TILE_INDEX_SIZE_INFO * (PACKET_SIZE * relativePosition.row + relativePosition.col);// Taken from
-            return tileIndexOffset;
+			//See https://github.com/Esri/raster-tiles-compactcache/blob/master/CompactCacheV2.md#tile-index
+			long tileIndexOffset = HEADER_SIZE + TILE_INDEX_SIZE_INFO * (PACKET_SIZE * relativePosition.row + relativePosition.col); 
+			return tileIndexOffset;
         }
 		
         private (long, long) GetRelativePosition(TileId tid, long bundleRow, long bundleCol)
@@ -194,7 +195,6 @@ namespace vtpk2mbtiles {
 			return BitConverter.ToInt64(rawBytes);
 		}
 		
-		//TODO: investigate what's the diff between method 1&2
         private long GetTileSizeMethodTwo(BinaryReader bundleReader)
         {
 			byte[] sizeBytes = bundleReader.ReadBytes(4);
