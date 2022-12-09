@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -166,15 +165,15 @@ namespace vtpk2mbtiles {
 						string zTxt = Path.GetFileName(Path.GetDirectoryName(bundleFile)).Substring(1, 2);
 						int z = Convert.ToInt32(zTxt);
 
-						using (VtpkReader vtpkReader = new VtpkReader(bundleFile, outputWriter)) {
+						using (VtpkReaderPure vtpkReader = new VtpkReaderPure(bundleFile, outputWriter)) {
 
 							if (!vtpkReader.GetTiles(
 								_tileIds.Where(
 									ti => ti.z == z
 									&& ti.x >= vtpkReader.BundleCol
-									&& ti.x < vtpkReader.BundleCol + VtpkReader.PACKET_SIZE
+									&& ti.x < vtpkReader.BundleCol + VtpkReaderPure.PACKET_SIZE
 									&& ti.y >= vtpkReader.BundleRow
-									&& ti.y < vtpkReader.BundleRow + VtpkReader.PACKET_SIZE
+									&& ti.y < vtpkReader.BundleRow + VtpkReaderPure.PACKET_SIZE
 								).ToList()
 								, _cancel
 								)

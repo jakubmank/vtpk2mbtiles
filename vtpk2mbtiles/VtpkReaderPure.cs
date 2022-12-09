@@ -24,7 +24,7 @@ namespace vtpk2mbtiles {
 
 			_outputWriter = outputWriter;
 
-			(long row, long col) bundle = GetBundleRowAndSize(bundleFileName);
+			(long row, long col) bundle = GetBundleRowAndSize(Path.GetFileNameWithoutExtension(bundleFileName));
 			_bundleRow = bundle.row;
 			_bundleCol = bundle.col;
 
