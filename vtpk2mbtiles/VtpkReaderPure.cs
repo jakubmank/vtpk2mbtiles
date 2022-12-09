@@ -24,11 +24,9 @@ namespace vtpk2mbtiles {
 
 			_outputWriter = outputWriter;
 
-			string bundleName = Path.GetFileNameWithoutExtension(bundleFileName);
-			string rowTxt = bundleName.Substring(1, 4);
-			string colTxt = bundleName.Substring(6, 4);
-			_bundleRow = Convert.ToInt64(rowTxt, 16);
-			_bundleCol = Convert.ToInt64(colTxt, 16);
+			(long row, long col) bundle = GetBundleRowAndSize(bundleFileName);
+			_bundleRow = bundle.row;
+			_bundleCol = bundle.col;
 
 			Console.WriteLine($"processing bundle row:{_bundleRow} col:{_bundleCol} {bundleFileName}");
 
@@ -156,6 +154,14 @@ namespace vtpk2mbtiles {
             }
 
             return (tileOffset, tileSize);
+		}
+		private (long, long) GetBundleRowAndSize(string bundleName)
+        {
+			string rowTxt = bundleName.Substring(1, 4);
+			string colTxt = bundleName.Substring(6, 4);
+			long row = Convert.ToInt64(rowTxt, 16);
+			long col = Convert.ToInt64(colTxt, 16);
+			return (row, col);
 		}
 		
 		private long GetTileOffset(long tileIndexValue)
