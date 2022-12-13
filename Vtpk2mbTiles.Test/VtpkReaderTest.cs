@@ -11,7 +11,7 @@ namespace Vtpk2mbTiles.Test
         [DeploymentItem(@"arcGISMapBundle\R0b80C0780.bundle")] // Level 13
         public void TestMethod1()
         {
-            VtpkReaderPure vtpkReader = new VtpkReaderPure();
+            VtpkReader vtpkReader = new VtpkReader();
 
             TileId tileId = new TileId(13, 2033, 3025); //bundlerow 2944 bundleCol 1920
             TileId tileId_2 = new TileId(13, 2033, 3026);

@@ -6,7 +6,7 @@ using System.IO;
 
 namespace vtpk2mbtiles {
 
-	public class VtpkReaderPure : IDisposable {
+	public class VtpkReader : IDisposable {
 
 
 		public const int PACKET_SIZE = 128;//TODO take this from 'root.json': resourceinfo -> cacheinfo -> storageinfo -> packetsize
@@ -20,7 +20,7 @@ namespace vtpk2mbtiles {
 		private IOutput _outputWriter;
 
 
-		public VtpkReaderPure(string bundleFileName, IOutput outputWriter) {
+		public VtpkReader(string bundleFileName, IOutput outputWriter) {
 
 			_outputWriter = outputWriter;
 
@@ -32,13 +32,13 @@ namespace vtpk2mbtiles {
 
 			_bundleReader = new BinaryReader(File.OpenRead(bundleFileName));
 		}
-		public VtpkReaderPure()
+		public VtpkReader()
         {
 			
         }
 		#region IDisposable
 
-		~VtpkReaderPure() {
+		~VtpkReader() {
 			Dispose(false);
 		}
 

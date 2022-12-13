@@ -72,16 +72,16 @@ namespace vtpk2mbtiles
 					string zTxt = Path.GetFileName(Path.GetDirectoryName(bundleFile)).Substring(1, 2);
 					int z = Convert.ToInt32(zTxt);
 
-					using (VtpkReaderPure vtpkReader = new VtpkReaderPure(bundleFile, _OutputWriter))
+					using (VtpkReader vtpkReader = new VtpkReader(bundleFile, _OutputWriter))
 					{
 
 						if (!vtpkReader.GetTiles(
 							tileIds.Where(
 								ti => ti.Z == z
 								&& ti.X >= vtpkReader.BundleCol
-								&& ti.X < vtpkReader.BundleCol + VtpkReaderPure.PACKET_SIZE
+								&& ti.X < vtpkReader.BundleCol + VtpkReader.PACKET_SIZE
 								&& ti.Y >= vtpkReader.BundleRow
-								&& ti.Y < vtpkReader.BundleRow + VtpkReaderPure.PACKET_SIZE
+								&& ti.Y < vtpkReader.BundleRow + VtpkReader.PACKET_SIZE
 							).ToList()
 							)
 						)
