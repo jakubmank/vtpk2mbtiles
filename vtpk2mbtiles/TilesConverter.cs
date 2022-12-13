@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -15,16 +16,54 @@ namespace vtpk2mbtiles
 		
 		private IOutput _OutputWriter;
         private CancelObject _CancelProcess;
+		private string _OutputPath; // where tiles will be saved
+		private List<TileId> _TileIds;
+		private string _VtpkPath; // path to Vtpk file
 		
-        public TilesConverter(IOutput outputWriter, CancelObject cancelProcess)
+        public TilesConverter( CancelObject cancelProcess, string vtpkPath, string outputPath)
         {
-            _OutputWriter = outputWriter;
-            _CancelProcess = cancelProcess;
-            FailedTiles = new ConcurrentBag<TileId>();
-			ProcessedTiles = 0;
-        }
+			_OutputPath = outputPath;
+			_CancelProcess = cancelProcess;
+			_VtpkPath = vtpkPath;
+			InitConverterVariables();
+		}
 		
-        public void BundlesToPbf(HashSet<string> bundleFiles, List<TileId> tileIds)
+		public void Start()
+        {
+			VtpkFile vtpkFile = new VtpkFile(_VtpkPath, _OutputPath);
+
+			// Check if VtpkFile has all necessary files
+			if (vtpkFile.Validate() != null)
+			{
+				vtpkFile.Validate().ForEach(Console.WriteLine);
+				return; // TODO add error logging
+			}
+			InitConverterVariables();
+			_OutputWriter = new OutputFiles(_OutputPath); // Create output directory
+
+			// Get all tiles from TileMap json file
+			dynamic tilemap = JObject.Parse(File.ReadAllText(vtpkFile.TileMapPath));
+			IEnumerable<dynamic> index = tilemap.index;
+			TileMap.Read(_TileIds, index, 0, 0, 0);
+
+			HashSet<string> bundleFiles = vtpkFile.GetBundleFiles();
+
+
+			if (null == bundleFiles || 0 == bundleFiles.Count)
+			{
+				Console.WriteLine($"no bundle files found.");
+			}
+			else
+			{
+				Console.WriteLine($"using {Environment.ProcessorCount} processors");
+				BundlesToPbf(bundleFiles, _TileIds);
+			}
+
+			_OutputWriter.Dispose();
+			_OutputWriter = null;
+		}
+		
+        private void BundlesToPbf(HashSet<string> bundleFiles, List<TileId> tileIds)
         {
 			Parallel.ForEach(
 				bundleFiles
@@ -63,5 +102,13 @@ namespace vtpk2mbtiles
 				}
 			);
 		}
+
+		private void InitConverterVariables()
+        {
+			FailedTiles = new ConcurrentBag<TileId>();
+			ProcessedTiles = 0;
+			_TileIds = new List<TileId>();
+		}
+
     }
 }

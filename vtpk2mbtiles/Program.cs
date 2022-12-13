@@ -50,43 +50,13 @@ namespace vtpk2mbtiles {
 
 			string vtpkDir = args[0];
 			string destination = args[1];
-			Console.WriteLine("decompressing tiles");
-
-            VtpkFile vtpkFile = new VtpkFile(vtpkDir, destination);
 			
-			// Check if VtpkFile has all necessary files
-			if (vtpkFile.Validate() != null)
-			{
-                vtpkFile.Validate().ForEach(Console.WriteLine);
-                return 1;
-            }
-
-            IOutput outputWriter;
-			Console.WriteLine($"folder destination: [{destination}]");
-			outputWriter = new OutputFiles(destination);
-
-
+			Console.WriteLine("decompressing tiles");
 			DateTime dtStart = DateTime.Now;
 
-			// Get all tiles from TileMap json file
-			dynamic tilemap = JObject.Parse(File.ReadAllText(vtpkFile.TileMapPath));
-			IEnumerable<dynamic> index = tilemap.index;
-			TileMap.Read(_tiles, _tileIds, index, 0, 0, 0);
-
-			HashSet<string> bundleFiles = vtpkFile.GetBundleFiles();
-
-			TilesConverter converter = new TilesConverter(outputWriter, _cancel);
+			TilesConverter converter = new TilesConverter(_cancel, vtpkDir, destination);
+			converter.Start();
 			
-			if (null == bundleFiles || 0 == bundleFiles.Count) {
-				Console.WriteLine($"no bundle files found.");
-			} else {
-				Console.WriteLine($"using {Environment.ProcessorCount} processors");
-                converter.BundlesToPbf(bundleFiles,_tileIds);
-            }
-
-			outputWriter.Dispose();
-			outputWriter = null;
-
 			DateTime dtFinished = DateTime.Now;
 			TimeSpan elapsed = dtFinished.Subtract(dtStart);
 
