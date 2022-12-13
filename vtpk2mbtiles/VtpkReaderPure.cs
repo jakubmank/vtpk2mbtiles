@@ -133,7 +133,6 @@ namespace vtpk2mbtiles {
 			}
 		}
 		
-		//TODO: (temporary) change to public for easier test
 		public (long offset, long size) GetTileOffsetAndSize(TileId tid, long bundleRow, long bundleCol, BinaryReader bundleReader)
 		{
 			(long row, long col) relPosition = GetRelativePosition(tid, bundleRow, bundleCol);
@@ -186,7 +185,8 @@ namespace vtpk2mbtiles {
 			long tileIndexOffset = HEADER_SIZE + TILE_INDEX_SIZE_INFO * (PACKET_SIZE * relativePosition.row + relativePosition.col); 
 			return tileIndexOffset;
         }
-		
+
+
         private (long, long) GetRelativePosition(TileId tid, long bundleRow, long bundleCol)
         {
 			long row = tid.y - bundleRow;
