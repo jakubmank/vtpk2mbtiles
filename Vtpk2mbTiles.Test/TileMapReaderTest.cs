@@ -30,7 +30,7 @@ namespace vtpk2mbtiles.Test
             List<dynamic> L2 = new List<dynamic> { 0,new JArray(L3), 0, 0 };
             List<dynamic> L1 = new List<dynamic>{ 0, 0, new JArray(L2), 0 };
             List<dynamic> L0 = new List<dynamic> { new JArray(L1),0 , 0, 0 };
-            TileMap.Read(tiles, tileIds, new JArray(L0), 0, 0, 0);
+            TileMap.Read( tileIds, new JArray(L0), 0, 0, 0);
             Assert.AreEqual(16, tileIds.Count);
             Assert.AreEqual("1/0/0", tileIds[0].z + "/" + tileIds[0].x + "/" + tileIds[0].y);
             Assert.AreEqual("12/1016/1512", tileIds[11].z + "/" + tileIds[11].x + "/" + tileIds[11].y);
