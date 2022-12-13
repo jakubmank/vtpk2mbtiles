@@ -61,7 +61,7 @@ namespace vtpk2mbtiles {
                 return 1;
             }
 
-             IOutput outputWriter;
+            IOutput outputWriter;
 			Console.WriteLine($"folder destination: [{destination}]");
 			outputWriter = new OutputFiles(destination);
 
