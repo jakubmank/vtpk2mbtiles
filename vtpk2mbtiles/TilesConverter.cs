@@ -15,15 +15,13 @@ namespace vtpk2mbtiles
 		public ConcurrentBag<TileId> FailedTiles;
 		
 		private IOutput _OutputWriter;
-        private CancelObject _CancelProcess;
 		private string _OutputPath; // where tiles will be saved
 		private List<TileId> _TileIds;
 		private string _VtpkPath; // path to Vtpk file
 		
-        public TilesConverter( CancelObject cancelProcess, string vtpkPath, string outputPath)
+        public TilesConverter(string vtpkPath, string outputPath)
         {
 			_OutputPath = outputPath;
-			_CancelProcess = cancelProcess;
 			_VtpkPath = vtpkPath;
 			InitConverterVariables();
 		}
@@ -70,7 +68,6 @@ namespace vtpk2mbtiles
 				, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }
 				, (bundleFile, loopState) => {
 
-					if (_CancelProcess.UserCancelled) { Console.WriteLine("shutting down thread ..."); loopState.Break(); }
 
 					string zTxt = Path.GetFileName(Path.GetDirectoryName(bundleFile)).Substring(1, 2);
 					int z = Convert.ToInt32(zTxt);
@@ -86,7 +83,6 @@ namespace vtpk2mbtiles
 								&& ti.y >= vtpkReader.BundleRow
 								&& ti.y < vtpkReader.BundleRow + VtpkReaderPure.PACKET_SIZE
 							).ToList()
-							, _CancelProcess
 							)
 						)
 						{

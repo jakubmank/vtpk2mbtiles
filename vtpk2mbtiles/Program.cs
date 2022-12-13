@@ -1,7 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using static System.FormattableString;
 
@@ -15,30 +13,10 @@ namespace vtpk2mbtiles {
 	class Program {
 
 
-		private static HashSet<string> _tiles = new HashSet<string>();
 		private static List<TileId> _tileIds = new List<TileId>();
-		private static CancelObject _cancel = new CancelObject();
-		private static bool _done = false;
 
 
 		static int Main(string[] args) {
-
-			Console.CancelKeyPress += (sender, evt) => {
-				Console.WriteLine();
-				Console.WriteLine();
-				Console.WriteLine("!!!!! CANCELLED BY USER !!!!!");
-				Console.WriteLine("trying to shutdown gracefully ...");
-				Console.WriteLine("mbtiles file might be corrupted");
-				Console.WriteLine();
-				Console.WriteLine();
-				_cancel.UserCancelled = true;
-
-				while (!_done) {
-					Task.Delay(100).Wait();
-				}
-
-			};
-
 			if (args.Length != 2) {
 				Console.WriteLine("wrong number of arguments, use:");
 				Console.WriteLine();
@@ -54,7 +32,7 @@ namespace vtpk2mbtiles {
 			Console.WriteLine("decompressing tiles");
 			DateTime dtStart = DateTime.Now;
 
-			TilesConverter converter = new TilesConverter(_cancel, vtpkDir, destination);
+			TilesConverter converter = new TilesConverter(vtpkDir, destination);
 			converter.Start();
 			
 			DateTime dtFinished = DateTime.Now;
@@ -77,7 +55,6 @@ namespace vtpk2mbtiles {
 			Console.WriteLine($"processed tiles  : {converter.ProcessedTiles}");
 			Console.WriteLine($"failed tiles     : {converter.FailedTiles.Count}");
 
-			_done = true;
 			return 0;
 		}
 

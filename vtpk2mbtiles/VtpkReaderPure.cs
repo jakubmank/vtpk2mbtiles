@@ -69,7 +69,7 @@ namespace vtpk2mbtiles {
 		public HashSet<TileId> FailedTiles { private set; get; } = new HashSet<TileId>();
 		public long ProcessedTiles { private set; get; } = 0;
 
-		public bool GetTiles(List<TileId> tileIds, CancelObject cancel)
+		public bool GetTiles(List<TileId> tileIds)
 		{
 			try
 			{
@@ -79,11 +79,6 @@ namespace vtpk2mbtiles {
 				foreach (TileId tid in tileIds)
 				{
 					(long offset, long size) tileInfo;
-					if (cancel.UserCancelled)
-					{
-						Console.WriteLine($"breaking out of tile processing ...");
-						return false;
-					}
 					
 					try
                     {
