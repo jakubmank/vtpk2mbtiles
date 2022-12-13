@@ -143,14 +143,6 @@ namespace vtpk2mbtiles {
 			long tileSize = GetTileSize(tileIndexValue);
 
 			bundleReader.BaseStream.Seek(tileOffset - 4, 0);
-			long tileSize2 = GetTileSizeMethodTwo(bundleReader);
-			//TODO: Check the reason for validating sizes with different methods
-			if (tileSize != tileSize2)
-            {
-                Console.WriteLine($"{tid}, relative row:{relPosition.row} relative col:{relPosition.col} tileIndexOffset: {tileIndexOffset} / {tileIndexOffset:X}");
-                Console.WriteLine($"{tid}, tileDataOffset:{tileOffset} / {tileOffset:X} tileSize:{tileSize} tileSize2:{tileSize2}");
-                Console.WriteLine("                                       tilesizes don't match ^^^^");
-            }
 
             return (tileOffset, tileSize);
 		}
@@ -186,7 +178,6 @@ namespace vtpk2mbtiles {
 			return tileIndexOffset;
         }
 
-
         private (long, long) GetRelativePosition(TileId tid, long bundleRow, long bundleCol)
         {
 			long row = tid.y - bundleRow;
@@ -200,11 +191,6 @@ namespace vtpk2mbtiles {
 			byte[] rawBytes = bundleReader.ReadBytes(8);
 			return BitConverter.ToInt64(rawBytes);
 		}
-		
-        private long GetTileSizeMethodTwo(BinaryReader bundleReader)
-        {
-			byte[] sizeBytes = bundleReader.ReadBytes(4);
-			return BitConverter.ToUInt32(sizeBytes);
-		}
+	
 	}
 }
