@@ -1,11 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using static System.FormattableString;
 
@@ -56,139 +52,37 @@ namespace vtpk2mbtiles {
 			string destination = args[1];
 			Console.WriteLine("decompressing tiles");
 
+            VtpkFile vtpkFile = new VtpkFile(vtpkDir, destination);
+			
+			// Check if VtpkFile has all necessary files
+			if (vtpkFile.Validate() != null)
+			{
+                vtpkFile.Validate().ForEach(Console.WriteLine);
+                return 1;
+            }
 
-
-
-			if (!Directory.Exists(vtpkDir)) {
-				Console.WriteLine($"vtpk directory does not exist: {vtpkDir}");
-				return 1;
-			}
-
-			if (destination.ToLower().EndsWith(".mbtiles")) {
-				if (File.Exists(destination)) {
-					Console.WriteLine($"destination mbtiles file already exists: [{destination}]");
-					return 1;
-				}
-			} else {
-				if (Directory.Exists(destination)) {
-					Console.WriteLine($"destination directory already exists: {destination}");
-					return 1;
-				}
-			}
-
-			string tilesDir = Path.Combine(vtpkDir, "p12", "tile");
-			if (!Directory.Exists(tilesDir)) {
-				Console.WriteLine($"tile directory not found: {tilesDir}");
-				return 1;
-			}
-
-			string[] levelDirs = Directory.GetDirectories(tilesDir, "L*");
-			if (null == levelDirs || levelDirs.Length < 1) {
-				Console.WriteLine($"tile directory is empty");
-				return 1;
-			}
-
-			string tileMapPath = Path.Combine(vtpkDir, "p12", "tilemap", "root.json");
-			if (!File.Exists(tileMapPath)) {
-				Console.WriteLine($"tile map not found: {tileMapPath}");
-				return 1;
-			}
-
-			string rootRootJson = Path.Combine(vtpkDir, "p12", "root.json");
-			if (!File.Exists(rootRootJson)) {
-				Console.WriteLine($"main root.json not found: {rootRootJson}");
-				return 1;
-			}
-
-			string infoJson = Path.Combine(vtpkDir, "p12", "resources", "info", "root.json");
-			if (!File.Exists(infoJson)) {
-				Console.WriteLine($"resources info root.json not found: {infoJson}");
-				return 1;
-			}
-
-			string styleJson = Path.Combine(vtpkDir, "p12", "resources", "styles", "root.json");
-			if (!File.Exists(styleJson)) {
-				Console.WriteLine($"resources styles root.json not found: {styleJson}");
-				return 1;
-			}
-
-
-			string itemInfoXml = Path.Combine(vtpkDir, "esriinfo", "iteminfo.xml");
-			if (!File.Exists(itemInfoXml)) {
-				Console.WriteLine($"iteminfo not found: {itemInfoXml}");
-				return 1;
-			}
-
-			dynamic style = JObject.Parse(File.ReadAllText(styleJson, Encoding.UTF8));
-			IEnumerable<dynamic> styleLayers = style.layers;
-
-
-			IOutput outputWriter;
+             IOutput outputWriter;
 			Console.WriteLine($"folder destination: [{destination}]");
 			outputWriter = new OutputFiles(destination);
 
 
 			DateTime dtStart = DateTime.Now;
 
-
-			dynamic tilemap = JObject.Parse(File.ReadAllText(tileMapPath));
+			// Get all tiles from TileMap json file
+			dynamic tilemap = JObject.Parse(File.ReadAllText(vtpkFile.TileMapPath));
 			IEnumerable<dynamic> index = tilemap.index;
-
 			TileMap.Read(_tiles, _tileIds, index, 0, 0, 0);
 
-			ConcurrentBag<TileId> failedTiles = new ConcurrentBag<TileId>();
-			long processedTiles = 0;
+			HashSet<string> bundleFiles = vtpkFile.GetBundleFiles();
 
-			HashSet<string> bundleFiles = new HashSet<string>();
-
-			foreach (string levelDir in levelDirs) {
-				string zTxt = Path.GetFileName(levelDir).Substring(1, 2);
-				int z = Convert.ToInt32(zTxt);
-
-
-				bundleFiles.UnionWith(Directory.GetFiles(levelDir, "*.bundle").OrderBy(b => b).ToArray());
-			}
-
+			TilesConverter converter = new TilesConverter(outputWriter, _cancel);
+			
 			if (null == bundleFiles || 0 == bundleFiles.Count) {
 				Console.WriteLine($"no bundle files found.");
 			} else {
-
 				Console.WriteLine($"using {Environment.ProcessorCount} processors");
-
-				Parallel.ForEach(
-					bundleFiles
-					, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }
-					, (bundleFile, loopState) => {
-
-						if (_cancel.UserCancelled) { Console.WriteLine("shutting down thread ..."); loopState.Break(); }
-
-						string zTxt = Path.GetFileName(Path.GetDirectoryName(bundleFile)).Substring(1, 2);
-						int z = Convert.ToInt32(zTxt);
-
-						using (VtpkReaderPure vtpkReader = new VtpkReaderPure(bundleFile, outputWriter)) {
-
-							if (!vtpkReader.GetTiles(
-								_tileIds.Where(
-									ti => ti.z == z
-									&& ti.x >= vtpkReader.BundleCol
-									&& ti.x < vtpkReader.BundleCol + VtpkReaderPure.PACKET_SIZE
-									&& ti.y >= vtpkReader.BundleRow
-									&& ti.y < vtpkReader.BundleRow + VtpkReaderPure.PACKET_SIZE
-								).ToList()
-								, _cancel
-								)
-							) {
-								return;
-							}
-							foreach (var failedTile in vtpkReader.FailedTiles) {
-								failedTiles.Add(failedTile);
-							}
-
-							processedTiles = Interlocked.Add(ref processedTiles, vtpkReader.ProcessedTiles);
-						}
-					}
-				);
-			}
+                converter.BundlesToPbf(bundleFiles,_tileIds);
+            }
 
 			outputWriter.Dispose();
 			outputWriter = null;
@@ -202,16 +96,16 @@ namespace vtpk2mbtiles {
 			Console.WriteLine(Invariant($"tiles/sec       : {(((double)_tileIds.Count) / elapsed.TotalSeconds):0.0}"));
 
 			Console.WriteLine("--------------------------");
-			if (failedTiles.Count > 0) {
+			if (converter.FailedTiles.Count > 0) {
 				Console.WriteLine("FAILED TILES:");
-				foreach (TileId tid in failedTiles) {
+				foreach (TileId tid in converter.FailedTiles) {
 					Console.WriteLine(tid);
 				}
 				Console.WriteLine("--------------------------");
 			}
 			Console.WriteLine($"tiles in tilemap : {_tileIds.Count}");
-			Console.WriteLine($"processed tiles  : {processedTiles}");
-			Console.WriteLine($"failed tiles     : {failedTiles.Count}");
+			Console.WriteLine($"processed tiles  : {converter.ProcessedTiles}");
+			Console.WriteLine($"failed tiles     : {converter.FailedTiles.Count}");
 
 			_done = true;
 			return 0;
