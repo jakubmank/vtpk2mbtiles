@@ -36,7 +36,7 @@ namespace vtpk2mbtiles {
 		public bool Write(TileId tid, byte[] data) {
 			try {
 
-				string tileDir = Path.Combine(_destDir, $"{tid.z}", $"{tid.y}"); //TODO: Can we grab this info from root.json? 
+				string tileDir = Path.Combine(_destDir, $"{tid.z}", $"{tid.y}");
 				if (!Directory.Exists(tileDir)) { Directory.CreateDirectory(tileDir); }
 				string tilePath = Path.Combine(tileDir, $"{tid.x}.pbf");
 				File.WriteAllBytes(tilePath, data);
