@@ -20,22 +20,22 @@ namespace vtpk2mbtiles
 
 			if (children[0] is JArray || 1 == ((JValue)children[0]).Value<int>())
 			{
-				tileIds.Add(new TileId { z = zoomLevel, x = col, y = row });
+				tileIds.Add(new TileId { Z = zoomLevel, X = col, Y = row });
 			}
 
 			if (children[1] is JArray || 1 == ((JValue)children[1]).Value<int>())
 			{
-				tileIds.Add(new TileId { z = zoomLevel, x = col + 1, y = row });
+				tileIds.Add(new TileId { Z = zoomLevel, X = col + 1, Y = row });
 			}
 
 			if (children[2] is JArray || 1 == ((JValue)children[2]).Value<int>())
 			{
-				tileIds.Add(new TileId { z = zoomLevel, x = col, y = row + 1 });
+				tileIds.Add(new TileId { Z = zoomLevel, X = col, Y = row + 1 });
 			}
 
 			if (children[3] is JArray || 1 == ((JValue)children[3]).Value<int>())
 			{
-				tileIds.Add(new TileId { z = zoomLevel, x = col + 1, y = row + 1 });
+				tileIds.Add(new TileId { Z = zoomLevel, X = col + 1, Y = row + 1 });
 			}
 			
 

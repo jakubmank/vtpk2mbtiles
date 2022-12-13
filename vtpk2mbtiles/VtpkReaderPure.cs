@@ -175,8 +175,8 @@ namespace vtpk2mbtiles {
 
         private (long, long) GetRelativePosition(TileId tid, long bundleRow, long bundleCol)
         {
-			long row = tid.y - bundleRow;
-			long col = tid.x - bundleCol;
+			long row = tid.Y - bundleRow;
+			long col = tid.X - bundleCol;
 			return (row, col);
 		}
 		

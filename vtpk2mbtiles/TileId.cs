@@ -1,20 +1,18 @@
 ﻿
 namespace vtpk2mbtiles {
 	public class TileId {
-		public int z { get; set; }
-		public long x { get; set; }
-		public long y { get; set; }
+		public int Z { get; set; }
+		public long X { get; set; }
+		public long Y { get; set; }
 
-		public long TmsY { get { return ((1 << z) - y - 1); } }
 		public TileId()
 		{
-
 		}
 		public TileId(int z, int x, int y)
 		{
-			this.z = z;
-			this.x = x;
-			this.y = y;
+			this.Z = z;
+			this.X = x;
+			this.Y = y;
 		}
 
 	}

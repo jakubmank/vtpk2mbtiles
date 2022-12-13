@@ -15,9 +15,9 @@ namespace vtpk2mbtiles
 		public ConcurrentBag<TileId> FailedTiles;
 		
 		private IOutput _OutputWriter;
-		private string _OutputPath; // where tiles will be saved
+		private readonly string _OutputPath; // where tiles will be saved
 		private List<TileId> _TileIds;
-		private string _VtpkPath; // path to Vtpk file
+		private readonly string _VtpkPath; // path to Vtpk file
 		
         public TilesConverter(string vtpkPath, string outputPath)
         {
@@ -77,11 +77,11 @@ namespace vtpk2mbtiles
 
 						if (!vtpkReader.GetTiles(
 							tileIds.Where(
-								ti => ti.z == z
-								&& ti.x >= vtpkReader.BundleCol
-								&& ti.x < vtpkReader.BundleCol + VtpkReaderPure.PACKET_SIZE
-								&& ti.y >= vtpkReader.BundleRow
-								&& ti.y < vtpkReader.BundleRow + VtpkReaderPure.PACKET_SIZE
+								ti => ti.Z == z
+								&& ti.X >= vtpkReader.BundleCol
+								&& ti.X < vtpkReader.BundleCol + VtpkReaderPure.PACKET_SIZE
+								&& ti.Y >= vtpkReader.BundleRow
+								&& ti.Y < vtpkReader.BundleRow + VtpkReaderPure.PACKET_SIZE
 							).ToList()
 							)
 						)

@@ -7,7 +7,7 @@ namespace vtpk2mbtiles {
 	public class OutputFiles : IOutput {
 
 
-		private string _destDir;
+		private readonly string _destDir;
 		private bool _disposed;
 
 
@@ -36,9 +36,9 @@ namespace vtpk2mbtiles {
 		public bool Write(TileId tid, byte[] data) {
 			try {
 
-				string tileDir = Path.Combine(_destDir, $"{tid.z}", $"{tid.y}");
+				string tileDir = Path.Combine(_destDir, $"{tid.Z}", $"{tid.Y}");
 				if (!Directory.Exists(tileDir)) { Directory.CreateDirectory(tileDir); }
-				string tilePath = Path.Combine(tileDir, $"{tid.x}.pbf");
+				string tilePath = Path.Combine(tileDir, $"{tid.X}.pbf");
 				File.WriteAllBytes(tilePath, data);
 
 
