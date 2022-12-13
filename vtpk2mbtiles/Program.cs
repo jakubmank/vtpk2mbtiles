@@ -134,7 +134,7 @@ namespace vtpk2mbtiles {
 			dynamic tilemap = JObject.Parse(File.ReadAllText(tileMapPath));
 			IEnumerable<dynamic> index = tilemap.index;
 
-			traverseLevels(index, 0, 0, 0);
+			TileMap.Read(_tiles, _tileIds, index, 0, 0, 0);
 
 			ConcurrentBag<TileId> failedTiles = new ConcurrentBag<TileId>();
 			long processedTiles = 0;
@@ -215,45 +215,6 @@ namespace vtpk2mbtiles {
 
 			_done = true;
 			return 0;
-		}
-
-
-		//TODO Fix not working LVL 0
-		private static void traverseLevels(IEnumerable<dynamic> index, int zoomLevel, long parentRow, long parentCol) {
-
-			zoomLevel++;
-
-			List<dynamic> children = index.ToList();
-
-			long col = parentCol * 2;
-			long row = parentRow * 2;
-
-			if (children[0] is JArray || 1 == ((JValue)children[0]).Value<int>()) {
-				_tiles.Add($"{zoomLevel}/{col}/{row}");
-				_tileIds.Add(new TileId { z = zoomLevel, x = col, y = row });
-			}
-
-			if (children[1] is JArray || 1 == ((JValue)children[1]).Value<int>()) {
-				_tiles.Add($"{zoomLevel}/{col + 1}/{row}");
-				_tileIds.Add(new TileId { z = zoomLevel, x = col + 1, y = row });
-			}
-
-			if (children[3] is JArray || 1 == ((JValue)children[3]).Value<int>()) {
-				_tiles.Add($"{zoomLevel}/{col + 1}/{row + 1}");
-				_tileIds.Add(new TileId { z = zoomLevel, x = col + 1, y = row + 1 });
-			}
-
-			if (children[2] is JArray || 1 == ((JValue)children[2]).Value<int>()) {
-				_tiles.Add($"{zoomLevel}/{col}/{row + 1}");
-				_tileIds.Add(new TileId { z = zoomLevel, x = col, y = row + 1 });
-			}
-
-
-
-			if (children[0] is JArray) { traverseLevels(children[0], zoomLevel, row, col); }
-			if (children[1] is JArray) { traverseLevels(children[1], zoomLevel, row, col + 1); }
-			if (children[2] is JArray) { traverseLevels(children[2], zoomLevel, row + 1, col); }
-			if (children[3] is JArray) { traverseLevels(children[3], zoomLevel, row + 1, col + 1); }
 		}
 
 

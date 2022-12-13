@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
-using System.Runtime.CompilerServices;
 using vtpk2mbtiles;
 
 namespace Vtpk2mbTiles.Test
